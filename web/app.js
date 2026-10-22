@@ -79,6 +79,7 @@ let urlAtual = null;
 
 function ligar(pc) {
   pcAtual = pc; sessaoAtiva = true;
+  try { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el); } catch (e) {}
   $("#inicio").classList.add("oculto");
   $("#veloAdd").classList.add("oculto");
   $("#sessao").classList.remove("oculto");
