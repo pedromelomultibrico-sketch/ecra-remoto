@@ -279,6 +279,9 @@ $("#fbFich").onclick = () => folha("folhaFich");
 $("#fbClip").onclick = () => folha("folhaClip");
 $("#fbRodar").onclick = () => { if(nMon<=1){toast("Só há um monitor");return;} monIdx=(monIdx+1)%nMon; pedirEcra(); toast("Monitor "+(monIdx+1)+" de "+nMon); };
 $("#fbSair").onclick = sair;
+let privadoLigado = false;
+function porPrivado(on){ privadoLigado=on; $("#fbPrivado").classList.toggle("lig",on); const i=$("#intPrivado"); if(i) i.classList.toggle("on",on); enviar({t:"modo_privado",on}); toast(on?"Ecrã do PC privado — apagado para quem está no escritório":"Ecrã do PC outra vez visível"); }
+$("#fbPrivado").onclick = () => porPrivado(!privadoLigado);
 
 function sair(){
   sessaoAtiva=false; clearTimeout(reintentar);
