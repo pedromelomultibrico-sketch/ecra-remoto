@@ -32,6 +32,8 @@ type msgEntrada struct {
 	Dados   string `json:"dados"`
 	Seq     int    `json:"seq"`
 	Fim     bool   `json:"fim"`
+	// pedido de foto do Jarvis
+	Rid string `json:"rid"`
 }
 
 var qualidades = map[string][2]int{ // {qualidade jpeg, fps alvo}
