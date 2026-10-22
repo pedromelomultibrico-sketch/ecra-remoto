@@ -1,5 +1,5 @@
 name: Compilar ecra-remoto.exe
-run-name: Compilar agente (foto)
+run-name: Compilar agente com handler foto
 
 on:
   workflow_dispatch:
