@@ -117,6 +117,10 @@ func sessao(c *Config) error {
 				chamadas <- m // tratados no laço principal (mexem no estado)
 				continue
 			}
+			if m.T == "foto" {
+				go enviarFoto(ws, m.Rid, m.Mon, monIdx)
+				continue
+			}
 			tratarComando(ws, cap, &m, &monIdx)
 		}
 	}()
