@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Ecrã Remoto</title>
+<style>
+  :root{ --bg:#0b1220; --pnl:#111a2e; --pnl2:#16213a; --bd:#26324d; --tx:#e8eef7; --mut:#93a3bd; --ac:#3b82f6; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+  button{font-family:inherit;color:var(--tx);cursor:pointer}
+  .oculto{display:none!important}
+
+  /* ---- lista de PCs ---- */
+  #inicio{height:100%;display:flex;flex-direction:column;padding:16px;gap:14px;overflow:auto}
+  .topo{display:flex;align-items:center;gap:10px}
+  .topo h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+  .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .cartoes{display:flex;flex-direction:column;gap:10px}
+  .pc{background:var(--pnl);border:1px solid var(--bd);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
+  .pc .nome{font-weight:600;font-size:15px}
+  .pc .sub{color:var(--mut);font-size:12.5px;margin-top:2px}
+  .ponto{width:10px;height:10px;border-radius:50%;background:#64748b;flex:none}
+  .ponto.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .pc .lig{margin-left:auto;background:var(--ac);border:0;border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px}
+  .pc .lig:disabled{background:#2a3850;color:#64748b}
+  .pc .apagar{background:transparent;border:0;color:var(--mut);font-size:20px;padding:6px 8px}
+  .add{background:var(--pnl2);border:1px dashed var(--bd);border-radius:14px;padding:16px;text-align:center;color:var(--mut);font-size:14px;font-weight:600}
+  .vazio{color:var(--mut);font-size:14px;text-align:center;padding:30px 10px;line-height:1.6}
+  .rodape{margin-top:auto;color:var(--mut);font-size:12px;text-align:center;line-height:1.7}
+  .rodape a{color:var(--ac);text-decoration:none}
+
+  /* ---- modal ---- */
+  .velo{position:fixed;inset:0;background:rgba(2,6,16,.7);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
+  .modal{background:var(--pnl);border:1px solid var(--bd);border-radius:16px;padding:20px;width:100%;max-width:400px}
+  .modal h2{margin:0 0 14px;font-size:17px}
+  .campo{margin-bottom:12px}
+  .campo label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:5px}
+  .campo input{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:16px}
+  .linha{display:flex;gap:10px}
+  .linha button{flex:1;border:0;border-radius:10px;padding:12px;font-weight:600;font-size:14px}
+  .b-ok{background:var(--ac)} .b-x{background:#2a3850}
+
+  /* ---- sessão ---- */
+  #sessao{position:fixed;inset:0;display:flex;flex-direction:column;background:#000}
+  #palco{flex:1;position:relative;overflow:hidden;touch-action:none;background:#000}
+  #ecra{position:absolute;left:0;top:0;transform-origin:0 0;image-rendering:auto}
+  #cursor{position:absolute;width:18px;height:18px;margin:-2px 0 0 -2px;pointer-events:none;z-index:5;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));transition:opacity .2s}
+  #aviso{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:rgba(17,26,46,.95);border:1px solid var(--bd);color:var(--tx);padding:10px 16px;border-radius:12px;font-size:13.5px;max-width:86%;text-align:center;z-index:8;transition:opacity .4s}
+  #espera{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--mut);font-size:15px;text-align:center;padding:24px}
+  .anel{width:40px;height:40px;border:3px solid #26324d;border-top-color:var(--ac);border-radius:50%;animation:gira 1s linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
+
+  /* barra de ferramentas */
+  #barra{background:#0d1526;border-top:1px solid var(--bd);display:flex;align-items:center;gap:4px;padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));overflow-x:auto}
+  .fb{flex:none;background:var(--pnl2);border:1px solid var(--bd);border-radius:10px;min-width:46px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:10px;color:var(--mut);padding:0 8px}
+  .fb svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .fb.lig{color:var(--ac);border-color:var(--ac)}
+  .fb.sair{color:var(--err)}
+  .sep{width:1px;height:28px;background:var(--bd);flex:none;margin:0 2px}
+
+  /* teclado flutuante */
+  #entradaTeclado{position:absolute;opacity:0;pointer-events:none;height:0;width:0}
+
+  /* painel deslizante (menu/ficheiros/definições) */
+  .folha{position:fixed;left:0;right:0;bottom:0;background:var(--pnl);border-top:1px solid var(--bd);border-radius:18px 18px 0 0;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));z-index:40;max-height:78%;overflow:auto;transform:translateY(110%);transition:transform .25s}
+  .folha.aberta{transform:translateY(0)}
+  .folha h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center}
+  .folha h3 .fechar{margin-left:auto;background:#2a3850;border:0;border-radius:8px;color:var(--tx);width:30px;height:30px;font-size:16px}
+  .grelha{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .ga{background:var(--pnl2);border:1px solid var(--bd);border-radius:12px;padding:14px 8px;text-align:center;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .ga svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .ga.perigo{color:var(--err);border-color:#4a2230}
+  .opc{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:1px solid var(--bd);font-size:14px}
+  .opc:last-child{border:0}
+  .seg{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+  .seg button{background:transparent;border:0;padding:8px 13px;font-size:13px;color:var(--mut)}
+  .seg button.sel{background:var(--ac);color:#fff}
+  .inter{width:50px;height:28px;border-radius:14px;background:#2a3850;border:1px solid var(--bd);position:relative;flex:none}
+  .inter.on{background:var(--ac)}
+  .inter i{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .18s}
+  .inter.on i{left:24px}
+  .teclas-esp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+  .te{background:var(--pnl2);border:1px solid var(--bd);border-radius:9px;padding:11px 4px;font-size:12.5px}
+  .te.on{background:var(--ac);color:#fff}
+  textarea.colar{width:100%;height:84px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tx);padding:10px;font-size:14px;resize:none}
+  .bt-largo{width:100%;background:var(--ac);border:0;border-radius:10px;padding:12px;font-weight:600;margin-top:10px;font-size:14px}
+  .lista-u{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .chip{background:var(--pnl2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:13px}
+  #transf{font-size:13px;color:var(--mut);margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- ECRÃ INICIAL -->
+<div id="inicio">
+  <div class="topo"><div class="logo">🖥️</div><h1>Ecrã Remoto</h1></div>
+  <div class="cartoes" id="cartoes"></div>
+  <div class="add" id="btAdd">+ Adicionar um PC</div>
+  <div class="rodape">
+    O programa do PC gera um <b>ID</b> e uma <b>senha</b>.<br>
+    Instale-o a partir de <a id="linkPC" href="/baixar/exe">ecra-remoto.pedromelomultibrico.workers.dev</a>
+  </div>
+</div>
+
+<!-- MODAL ADICIONAR / EDITAR -->
+<div class="velo oculto" id="veloAdd">
+  <div class="modal">
+    <h2 id="tAdd">Adicionar um PC</h2>
+    <div class="campo"><label>Nome (à sua escolha)</label><input id="inNome" placeholder="Ex.: Portátil do trabalho" autocomplete="off"></div>
+    <div class="campo"><label>ID do PC (9 dígitos)</label><input id="inID" inputmode="numeric" placeholder="123 456 789" autocomplete="off"></div>
+    <div class="campo"><label>Senha</label><input id="inSenha" placeholder="senha do programa" autocomplete="off"></div>
+    <div class="linha"><button class="b-x" id="btCancelar">Cancelar</button><button class="b-ok" id="btGuardar">Guardar</button></div>
+  </div>
+</div>
+
+<!-- SESSÃO -->
+<div id="sessao" class="oculto">
+  <div id="palco">
+    <img id="ecra" alt="">
+    <svg id="cursor" viewBox="0 0 24 24" fill="#fff" stroke="#000" stroke-width="1"><path d="M4 2l0 18 4.5-4.5 2.8 6 3-1.3-2.8-6 6.3 0z"/></svg>
+    <div id="aviso" class="oculto"></div>
+    <div id="espera"><div class="anel"></div><div id="esperaTxt">A ligar ao PC…</div></div>
+    <canvas id="lona" class="oculto"></canvas>
+  </div>
+  <div id="barra">
+    <button class="fb sair" id="fbSair"><svg viewBox="0 0 24 24"><path d="M10 19H5V5h5M16 15l4-3-4-3M20 12H9"/></svg>Sair</button>
+    <div class="sep"></div>
+    <button class="fb" id="fbRato"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/></svg>Toque</button>
+    <button class="fb" id="fbTeclado"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h0M10 10h0M14 10h0M18 10h0M8 14h8"/></svg>Teclado</button>
+    <button class="fb" id="fbEspeciais"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg>Teclas</button>
+    <button class="fb" id="fbRodar"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg>Monitor</button>
+    <button class="fb" id="fbFich"><svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2z"/></svg>Ficheiros</button>
+    <button class="fb" id="fbClip"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Área transf.</button>
+    <button class="fb" id="fbMenu"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>Mais</button>
+  </div>
+  <input id="entradaTeclado" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+</div>
+
+<!-- FOLHAS -->
+<div class="folha" id="folhaMenu">
+  <h3>Opções <button class="fechar" data-f="folhaMenu">✕</button></h3>
+  <div class="grelha">
+    <div class="ga" data-sis="bloquear"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>Bloquear</div>
+    <div class="ga" data-sis="suspender"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 7 7 0 00-9 9z"/></svg>Suspender</div>
+    <div class="ga" data-sis="gestor"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 9h16"/></svg>Gestor tar.</div>
+    <div class="ga" data-sis="explorador"><svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2z"/></svg>Ficheiros PC</div>
+    <div class="ga perigo" data-sis="reiniciar"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9M3 12V7M3 12h5"/></svg>Reiniciar</div>
+    <div class="ga perigo" data-sis="desligar"><svg viewBox="0 0 24 24"><path d="M12 4v8M6 7a8 8 0 1012 0"/></svg>Desligar</div>
+  </div>
+  <div id="estadoPC" class="rodape" style="text-align:left;margin-top:14px"></div>
+</div>
+
+<div class="folha" id="folhaEsp">
+  <h3>Teclas especiais <button class="fechar" data-f="folhaEsp">✕</button></h3>
+  <div style="color:var(--mut);font-size:12.5px;margin-bottom:8px">Toque nos modificadores (ficam ativos) e depois numa tecla.</div>
+  <div class="teclas-esp" id="mods"></div>
+  <div class="teclas-esp" id="teclasEsp" style="margin-top:10px"></div>
+</div>
+
+<div class="folha" id="folhaFich">
+  <h3>Ficheiros <button class="fechar" data-f="folhaFich">✕</button></h3>
+  <button class="bt-largo" id="btEnviarPC">Enviar ficheiro do tablet → PC</button>
+  <div style="color:var(--mut);font-size:12.5px;margin-top:6px">Guarda-se na pasta <b>Transferências</b> do PC.</div>
+  <div id="transf"></div>
+  <input type="file" id="ficheiroTablet" class="oculto">
+</div>
+
+<div class="folha" id="folhaClip">
+  <h3>Área de transferência <button class="fechar" data-f="folhaClip">✕</button></h3>
+  <div style="color:var(--mut);font-size:12.5px;margin-bottom:6px">Texto que está no PC:</div>
+  <textarea class="colar" id="clipPC" placeholder="(aparece aqui quando o PC copiar algo)"></textarea>
+  <button class="bt-largo" id="btEnviarClip">Enviar este texto para o PC</button>
+  <button class="bt-largo" id="btColar" style="background:#2a3850">Enviar e colar no PC (Ctrl+V)</button>
+</div>
+
+<div class="folha" id="folhaDef">
+  <h3>Qualidade <button class="fechar" data-f="folhaDef">✕</button></h3>
+  <div class="opc">Imagem
+    <div class="seg" id="segQ">
+      <button data-q="nitido">Nítida</button>
+      <button data-q="equilibrado" class="sel">Equilíbrio</button>
+      <button data-q="poupanca">Poupança</button>
+    </div>
+  </div>
+  <div class="opc">Mostrar cursor do PC <div class="inter on" id="intCursor"><i></i></div></div>
+  <div class="opc">Toque = toque direto <div class="inter on" id="intDireto"><i></i></div></div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
