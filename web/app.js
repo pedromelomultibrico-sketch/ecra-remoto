@@ -362,8 +362,14 @@ function parteReceberFich(m){
   recv.partes.push(u);
   if(m.fim){
     const bl = new Blob(recv.partes);
-    const a = document.createElement("a"); a.href=URL.createObjectURL(bl); a.download=recv.nome; a.click();
-    toast("Recebido: "+recv.nome); recv=null;
+    if (window.AndroidFich) {
+      const fr = new FileReader();
+      fr.onload = () => { try { window.AndroidFich.guardar(recv.nome, fr.result); } catch(e){} toast("Recebido: "+recv.nome); recv=null; };
+      fr.readAsDataURL(bl);
+    } else {
+      const a = document.createElement("a"); a.href=URL.createObjectURL(bl); a.download=recv.nome; a.click();
+      toast("Recebido: "+recv.nome); recv=null;
+    }
   }
 }
 
