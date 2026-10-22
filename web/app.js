@@ -358,7 +358,7 @@ function iniciarReceberFich(m){ recv = { nome:m.nome, partes:[] }; toast("A rece
 function parteReceberFich(m){
   if(!recv) return;
   const bin = atob(m.dados||""); const u = new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) u[i]=binr.charCodeAt(i);
+  for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   recv.partes.push(u);
   if(m.fim){
     const bl = new Blob(recv.partes);
