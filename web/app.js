@@ -285,6 +285,7 @@ $("#fbPrivado").onclick = () => porPrivado(!privadoLigado);
 
 function sair(){
   sessaoAtiva=false; clearTimeout(reintentar);
+  privadoLigado=false; $("#fbPrivado")&&$("#fbPrivado").classList.remove("lig"); $("#intPrivado")&&$("#intPrivado").classList.remove("on");
   try{ enviar({t:"pausa"}); ws&&ws.close(); }catch{}
   $("#sessao").classList.add("oculto"); $("#inicio").classList.remove("oculto");
   document.querySelectorAll(".folha").forEach(f=>f.classList.remove("aberta"));
