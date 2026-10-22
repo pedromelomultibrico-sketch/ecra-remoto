@@ -1,0 +1,32 @@
+name: Compilar ecra-remoto.exe
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'agente/**'
+      - '.github/workflows/exe.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  exe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Compilar
+        working-directory: agente
+        run: |
+          N=$(printf '%02d' $(( ${{ github.run_number }} % 100 )))
+          V="$(date +%y%m%d)${N}"
+          echo "V=$V" >> "$GITHUB_ENV"
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H=windowsgui -X main.versao=$V" -o ../ecra-remoto.exe .
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v$V" ecra-remoto.exe --title "Ecrã Remoto $V" --notes "Agente do PC com resposta a foto do Jarvis" --latest
