@@ -194,6 +194,14 @@
   <div class="opc">Toque = toque direto <div class="inter on" id="intDireto"><i></i></div></div>
 </div>
 <script src="/app.js"></script>
-<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{})); }</script>
+<script>
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{})); }
+(function(){
+  var b=document.getElementById("btInstalar"), p=null;
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); p=e; if(b) b.classList.remove("oculto"); });
+  if(b) b.onclick=function(){ if(!p) return; p.prompt(); p.userChoice.finally(function(){ p=null; b.classList.add("oculto"); }); };
+  window.addEventListener("appinstalled",function(){ if(b) b.classList.add("oculto"); });
+})();
+</script>
 </body>
 </html>
