@@ -325,7 +325,7 @@ $("#btColar").onclick = () => { enviar({t:"colar", txt:$("#clipPC").value}); toa
 $("#segQ").addEventListener("click",(e)=>{ const b=e.target.closest("[data-q]"); if(!b)return; qualidade=b.dataset.q; document.querySelectorAll("#segQ button").forEach(x=>x.classList.toggle("sel",x===b)); pedirEcra(); });
 $("#intCursor").onclick = (e)=>{ mostrarCursor=!mostrarCursor; e.currentTarget.classList.toggle("on",mostrarCursor); };
 $("#intDireto").onclick = (e)=>{ toqueDireto=!toqueDireto; e.currentTarget.classList.toggle("on",toqueDireto); toast(toqueDireto?"Toque direto":"Touchpad"); };
-$("#intPrivado").onclick = (e)=>{ const on=!e.currentTarget.classList.contains("on"); e.currentTarget.classList.toggle("on",on); enviar({t:"modo_privado",on}); toast(on?"Ecrã do PC privado — apagado para quem está no escritório":"Ecrã do PC outra vez visível"); };
+$("#intPrivado").onclick = () => porPrivado(!privadoLigado);
 $("#fbRodar").addEventListener("contextmenu",e=>{e.preventDefault();folha("folhaDef");});
 let defLongo=null;
 $("#fbRodar").addEventListener("pointerdown",()=>{defLongo=setTimeout(()=>folha("folhaDef"),600);});
