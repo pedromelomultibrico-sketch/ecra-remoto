@@ -19,6 +19,7 @@ function pintarLista() {
     const d = document.createElement("div"); d.className = "pc";
     d.innerHTML = `<div class="ponto" id="p${i}"></div>
       <div style="min-width:0"><div class="nome">${esc(pc.nome)}</div><div class="sub" id="s${i}">${fmtID(pc.id)}</div></div>
+      <button class="apagar" data-ed="${i}" title="Editar">✏️</button>
       <button class="apagar" data-ap="${i}">🗑</button>
       <button class="lig" data-lig="${i}">Ligar</button>`;
     c.appendChild(d);
