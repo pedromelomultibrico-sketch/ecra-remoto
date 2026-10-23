@@ -62,7 +62,8 @@ $("#btGuardar").onclick = () => {
 $("#inID").oninput = (e) => { let v = e.target.value.replace(/\D/g,"").slice(0,9); e.target.value = v.replace(/(\d{3})(\d{0,3})(\d{0,3})/, (m,a,b,c)=>[a,b,c].filter(Boolean).join(" ")); };
 
 $("#cartoes").addEventListener("click", (e) => {
-  const ap = e.target.closest("[data-ap]"), lig = e.target.closest("[data-lig]");
+  const ap = e.target.closest("[data-ap]"), lig = e.target.closest("[data-lig]"), ed = e.target.closest("[data-ed]");
+  if (ed) { abrirAdd(+ed.dataset.ed); return; }
   if (ap) { const i = +ap.dataset.ap; if (confirm("Remover “"+pcs[i].nome+"” da lista?")) { pcs.splice(i,1); gravarPCs(pcs); pintarLista(); } }
   if (lig) { ligar(pcs[+lig.dataset.lig]); }
 });
