@@ -291,9 +291,6 @@ func tratarComando(ws *WS, cap *Captor, m *msgEntrada, monIdx *int) {
 		if err := acaoSistema(m.Acao); err != nil {
 			ws.Texto(mustJSON(map[string]any{"t": "aviso", "m": err.Error()}))
 		}
-	case "cofre":
-		cofreLigar(m.On)
-		ws.Texto(mustJSON(map[string]any{"t": "cofre", "on": cofreAtivo()}))
 	case "estado_pc":
 		pct, ac := bateria()
 		ws.Texto(mustJSON(map[string]any{"t": "estado_pc", "bateria": pct, "corrente": ac, "unidades": unidades(), "versao": versao}))
