@@ -241,12 +241,6 @@ func main() {
 	prepararLog()
 
 	args := strings.Join(os.Args[1:], " ")
-	// "Cofre" no ambiente de trabalho: deixa o pedido ao agente que já corre e sai.
-	if strings.Contains(args, "--cofre") {
-		os.MkdirAll(pastaApp(), 0o755)
-		os.WriteFile(pedidoCofreFich(), []byte("1"), 0o644)
-		return
-	}
 	exe, _ := os.Executable()
 	exe, _ = filepath.Abs(exe)
 	instalado := filepath.Join(pastaApp(), nomeExe)
