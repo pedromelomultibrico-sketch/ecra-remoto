@@ -34,6 +34,8 @@ type msgEntrada struct {
 	Fim     bool   `json:"fim"`
 	// pedido de foto do Jarvis
 	Rid string `json:"rid"`
+	// modo cofre
+	On bool `json:"on"`
 }
 
 var qualidades = map[string][2]int{ // {qualidade jpeg, fps alvo}
