@@ -301,5 +301,6 @@ func main() {
 		go mostrarInfo(c, true)
 	}
 	go vigiarAtualizacoes(instalado)
+	go vigiarAtalhosCofre(instalado)
 	correr(c)
 }
